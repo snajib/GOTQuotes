@@ -1,6 +1,9 @@
-﻿using System;
+﻿//Sammy Najib
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -23,6 +26,24 @@ namespace GOTQuotes
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            //https://got-quotes.herokuapp.com/quotes
+
+            using (HttpClient client = new HttpClient())
+            {
+                var response = client.GetAsync(@"https://got-quotes.herokuapp.com/quotes").Result;
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = response.Content.ReadAsStringAsync().Result;
+                    HerokuQuote q = JsonConvert.DeserializeObject<HerokuQuote>(content);
+
+                    quote.Inlines.Add(new Italic(new Run(q.quote)));
+                    quote.Inlines.Add(new Bold(new Run($" - {q.character}")));
+                }
+            }
         }
     }
 }
